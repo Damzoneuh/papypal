@@ -3,7 +3,6 @@
 
 namespace backndev\paypal;
 
-
 use backndev\paypal\Order\Order;
 use backndev\paypal\Token\Token;
 use Symfony\Component\HttpClient\HttpClient;
