@@ -4,7 +4,10 @@
 namespace backndev\paypal;
 
 
+use App\Entity\Items;
+use App\Entity\User;
 use backndev\paypal\Order\Order;
+use backndev\paypal\Subscription\Subscription;
 use backndev\paypal\Token\Token;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
@@ -106,6 +109,18 @@ class PayPal extends Bundle
         return $response->getContent();
     }
 
+    public function setSubscription(Items $item){
+        $sub = new Subscription();
+        $payload = $sub->setSubscriptionPayload($item);
+        $headers = $sub->setPlanHeaders($this->_apiKey);
+        $client = HttpClient::create();
+        $response = $client->request('POST', $this->_uri . '/v1/billing/plans', [
+            'headers' => $headers,
+            'json' => $payload
+        ]);
+        dump($response); die();
+    }
+
     /**
      * @return string
      * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
@@ -113,8 +128,9 @@ class PayPal extends Bundle
      * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
      * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
      */
-    private function getToken(){
+    public function getToken(){
         $url = $this->_uri . '/v1/oauth2/token';
-        return Token::getNewToken($this->_client, $this->_secret, $url);
+        //return Token::getNewToken($this->_client, $this->_secret, $url);
+        dump(Token::getNewToken($this->_client, $this->_secret, $url)); die();
     }
 }
