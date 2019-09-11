@@ -11,24 +11,13 @@ class Subscription
     public function setSubscriptionPayload(Items $item){
         $payload = [
             'product_id' => $item->getPaypalProduct(),
+            'name' => $item->getType(),
             'description' => $item->getType(),
             'status' => 'ACTIVE',
             'billing_cycles' => [
-                'frequency' => [
-                    'interval_unit' => 'MONTH',
-                    'interval_count' => $item->getDuration()
-                ]
+                self::setFrequency($item)
             ],
-            'tenure_type' => 'REGULAR',
-            'sequence' => 2,
-            'total_cycles' => 20,
-            'pricing_schemes' => [
-                'fixed_price' => [
-                    'value' => $item->getPrice(),
-                    'currency_code' => 'CHF'
-                ]
-            ],
-            'payment_preference' => [
+            'payment_preferences' => [
                 'auto_bill_outstanding' => true,
                 'setup_fee' => [
                     'value' => $item->getPrice(),
@@ -43,6 +32,23 @@ class Subscription
             ]
         ];
         return $payload;
+    }
+
+    private function setFrequency(Items $item){
+        $object = array('frequency' => [
+            'interval_unit' => 'MONTH',
+            'interval_count' => $item->getDuration()
+        ],
+            'tenure_type' => 'REGULAR',
+            'sequence' => 1,
+            'total_cycles' => 20,
+            'pricing_scheme' => [
+                'fixed_price' => [
+                    'value' => $item->getPrice(),
+                    'currency_code' => 'CHF'
+                ]
+        ]);
+        return $object;
     }
 
     public function setPlanHeaders($token){

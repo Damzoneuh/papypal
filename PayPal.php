@@ -116,9 +116,9 @@ class PayPal extends Bundle
         $client = HttpClient::create();
         $response = $client->request('POST', $this->_uri . '/v1/billing/plans', [
             'headers' => $headers,
-            'json' => $payload
+            'body' => json_encode($payload)
         ]);
-        dump($response); die();
+        return $response->getContent();
     }
 
     /**
@@ -130,7 +130,7 @@ class PayPal extends Bundle
      */
     public function getToken(){
         $url = $this->_uri . '/v1/oauth2/token';
-        //return Token::getNewToken($this->_client, $this->_secret, $url);
-        dump(Token::getNewToken($this->_client, $this->_secret, $url)); die();
+        //dump(Token::getNewToken($this->_client, $this->_secret, $url)); die();
+        return Token::getNewToken($this->_client, $this->_secret, $url);
     }
 }
