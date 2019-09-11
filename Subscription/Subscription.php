@@ -10,7 +10,7 @@ class Subscription
 {
     public function setSubscriptionPayload(Items $item){
         $payload = [
-            'product_id' => $item->getId(),
+            'product_id' => $item->getPaypalProduct(),
             'description' => $item->getType(),
             'status' => 'ACTIVE',
             'billing_cycles' => [
@@ -48,8 +48,7 @@ class Subscription
     public function setPlanHeaders($token){
         $headers = [
             'Content-Type' => 'application/json',
-            'Authorization' => $token,
-            'PayPal-Request-Id' => 'PLAN-' . rand(10000000, 99999999) . '-' . rand(100, 999)
+            'Authorization' => $token
         ];
         return $headers;
     }
