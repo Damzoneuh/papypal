@@ -124,7 +124,7 @@ class PayPal extends Bundle
         return $response->getContent();
     }
 
-    public function approuveSubscribtion(Items $item, User $user, string $plan){
+    public function approuveSubscription(Items $item, User $user, string $plan){
         $sub = new Subscription();
         $subscribePayload = $sub->setSubscriptionPayLoad($plan, $item, $user);
         $headers = $sub->setPlanHeaders($this->_apiKey);
