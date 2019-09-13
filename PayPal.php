@@ -9,8 +9,12 @@ use App\Entity\User;
 use backndev\paypal\Order\Order;
 use backndev\paypal\Subscription\Subscription;
 use backndev\paypal\Token\Token;
+use mysql_xdevapi\Exception;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
+use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\Config\FileLocator;
 
 
 class PayPal extends Bundle
@@ -40,7 +44,6 @@ class PayPal extends Bundle
         $this->_contentType = 'application/json';
         $this->_apiKey = self::getToken();
     }
-
 
     public function setPayload(array $payload) : self {
         $this->_payload = $payload;
@@ -111,7 +114,7 @@ class PayPal extends Bundle
 
     public function setSubscription(Items $item){
         $sub = new Subscription();
-        $payload = $sub->setSubscriptionPayload($item);
+        $payload = $sub->setPlanPayload($item);
         $headers = $sub->setPlanHeaders($this->_apiKey);
         $client = HttpClient::create();
         $response = $client->request('POST', $this->_uri . '/v1/billing/plans', [
@@ -119,6 +122,18 @@ class PayPal extends Bundle
             'body' => json_encode($payload)
         ]);
         return $response->getContent();
+    }
+
+    public function approuveSubscribtion(Items $item, User $user, string $plan){
+        $sub = new Subscription();
+        $subscribePayload = $sub->setSubscriptionPayLoad($plan, $item, $user);
+        $headers = $sub->setPlanHeaders($this->_apiKey);
+        $client = HttpClient::create();
+        $response = $client->request('POST', $this->_uri . '/v1/billing/subscriptions', [
+            'headers' => $headers,
+            'json' => $subscribePayload
+        ]);
+        dump($subscribePayload); die();
     }
 
     /**
@@ -130,7 +145,6 @@ class PayPal extends Bundle
      */
     public function getToken(){
         $url = $this->_uri . '/v1/oauth2/token';
-        //dump(Token::getNewToken($this->_client, $this->_secret, $url)); die();
         return Token::getNewToken($this->_client, $this->_secret, $url);
     }
 }
