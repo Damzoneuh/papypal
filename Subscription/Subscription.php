@@ -88,6 +88,16 @@ class Subscription
         return $payload;
     }
 
+    public function capturePayload($details){
+        return $payload = [
+            'note' => 'first payment for subscription',
+            'amount' => [
+                'currency_code' => $details->shipping_amount->currency_code,
+                'value' => $details->shipping_amount->value
+            ]
+        ];
+    }
+
 
 
 

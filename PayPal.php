@@ -154,6 +154,11 @@ class PayPal extends Bundle
         return $response->getContent();
     }
 
+    /**
+     * @param $id
+     * @return bool
+     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     */
     public function activateSubscription($id){
         $client = HttpClient::create();
         $sub = new Subscription();
@@ -162,6 +167,22 @@ class PayPal extends Bundle
             'headers' => $headers,
             'json' => ['reason' => 'First subscription']
         ]);
+        return true;
+    }
+
+    public function captureSubscription($id){
+        $client = HttpClient::create();
+        $sub = new Subscription();
+        $headers = $sub->setPlanHeaders($this->_apiKey);
+        $details = json_decode($client->request('GET', '/v1/billing/subscriptions/' . $id, [
+            'headers' => $headers
+        ]));
+        $payload = $sub->capturePayload($details);
+        $client->request('POST', $this->_uri . '/v1/billing/subscriptions/' . $id . '/capture',
+            [
+                'headers' => $headers,
+                'json' => $payload
+            ]);
         return true;
     }
 
