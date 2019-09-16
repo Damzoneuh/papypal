@@ -98,6 +98,14 @@ class PayPal extends Bundle
         return $response->getContent();
     }
 
+    /**
+     * @param string $id
+     * @return string
+     * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     */
     public function setCapture(string $id){
         $client = HttpClient::create();
         $response = $client->request('POST', $this->_uri . '/v2/checkout/orders/' . $id . '/capture',
@@ -124,6 +132,16 @@ class PayPal extends Bundle
         return $response->getContent();
     }
 
+    /**
+     * @param Items $item
+     * @param User $user
+     * @param string $plan
+     * @return string
+     * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     */
     public function approuveSubscription(Items $item, User $user, string $plan){
         $sub = new Subscription();
         $subscribePayload = $sub->setSubscriptionPayLoad($plan, $item, $user);
@@ -133,7 +151,18 @@ class PayPal extends Bundle
             'headers' => $headers,
             'json' => $subscribePayload
         ]);
-        dump($subscribePayload); die();
+        return $response->getContent();
+    }
+
+    public function activateSubscription($id){
+        $client = HttpClient::create();
+        $sub = new Subscription();
+        $headers = $sub->setPlanHeaders($this->_apiKey);
+        $client->request('POST', $this->_uri . '/v1/billing/subscriptions/'. $id . '/activate', [
+            'headers' => $headers,
+            'json' => ['reason' => 'First subscription']
+        ]);
+        return true;
     }
 
     /**

@@ -64,7 +64,7 @@ class Subscription
     public function setSubscriptionPayLoad(string $plan, Items $item, User $user){
         $payload = [
             'plan_id' => $plan,
-            'start_time' => new \DateTime('now'),
+            //'start_time' => new \DateTime('now'),
             'quantity' => 1,
             'shipping_amount' => [
                 'currency_code' => 'CHF',
@@ -80,10 +80,15 @@ class Subscription
                 'payment_method' => [
                     'payer_selected' => 'PAYPAL',
                     'payee_preferred' => 'IMMEDIATE_PAYMENT_REQUIRED'
-                ]
+                ],
+                'return_url' => 'https://parentsolo.backndev.fr/paypal/accept/sub',
+                'cancel_url' => 'https://parentsolo.backndev.fr/paypal/cancel/sub'
             ]
         ];
+        return $payload;
     }
+
+
 
 
 //{
