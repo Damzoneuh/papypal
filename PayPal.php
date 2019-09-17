@@ -171,7 +171,7 @@ class PayPal extends Bundle
         $client = HttpClient::create();
         $sub = new Subscription();
         $headers = $sub->setPlanHeaders($this->_apiKey);
-        $lastYear = new \DateTime('-1 year');
+        $lastYear = new \DateTime('-10 year');
         $now =  new \DateTime('now');
         $query = '?start_time=' . $lastYear->format('Y-m-d') . 'T' . $lastYear->format('H:i:s') . 'Z&end_time=' .  $now->format('Y-m-d'). 'T' . $now->format('H:i:s') . 'Z';
         $details = $client->request('GET', $this->_uri . '/v1/billing/subscriptions/' . $id . '/transactions' . $query, [
