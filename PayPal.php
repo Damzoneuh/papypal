@@ -9,12 +9,9 @@ use App\Entity\User;
 use backndev\paypal\Order\Order;
 use backndev\paypal\Subscription\Subscription;
 use backndev\paypal\Token\Token;
-use mysql_xdevapi\Exception;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
-use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
-use Symfony\Component\Config\FileLocator;
+
 
 
 class PayPal extends Bundle
@@ -170,19 +167,32 @@ class PayPal extends Bundle
         return true;
     }
 
-    public function captureSubscription($id){
+    public function getSubscription($id){
         $client = HttpClient::create();
         $sub = new Subscription();
         $headers = $sub->setPlanHeaders($this->_apiKey);
-        $details = json_decode($client->request('GET', '/v1/billing/subscriptions/' . $id, [
+        $lastYear = new \DateTime('-1 year');
+        $now =  new \DateTime('now');
+        $query = '?start_time=' . $lastYear->format('Y-m-d') . 'T' . $lastYear->format('H:i:s') . 'Z&end_time=' .  $now->format('Y-m-d'). 'T' . $now->format('H:i:s') . 'Z';
+        $details = $client->request('GET', $this->_uri . '/v1/billing/subscriptions/' . $id . '/transactions' . $query, [
             'headers' => $headers
-        ]));
-        $payload = $sub->capturePayload($details);
-        $client->request('POST', $this->_uri . '/v1/billing/subscriptions/' . $id . '/capture',
-            [
-                'headers' => $headers,
-                'json' => $payload
-            ]);
+        ]);
+        return $details->getContent();
+    }
+
+    /**
+     * @param $id
+     * @return bool
+     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     */
+    public function cancelSubscription($id){
+        $client = HttpClient::create();
+        $sub = new Subscription();
+        $headers = $sub->setPlanHeaders($this->_apiKey);
+        $client->request('POST', $this->_uri . '/v1/billing/subscriptions/'. $id . '/cancel', [
+            'headers' => $headers,
+            'json' => ['reason' => 'admin cancel subscription']
+        ]);
         return true;
     }
 
@@ -195,6 +205,7 @@ class PayPal extends Bundle
      */
     public function getToken(){
         $url = $this->_uri . '/v1/oauth2/token';
+       // dump(Token::getNewToken($this->_client, $this->_secret, $url)); die();
         return Token::getNewToken($this->_client, $this->_secret, $url);
     }
 }

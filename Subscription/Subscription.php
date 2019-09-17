@@ -91,6 +91,7 @@ class Subscription
     public function capturePayload($details){
         return $payload = [
             'note' => 'first payment for subscription',
+            'capture_type' => 'OUTSTANDING_BALANCE',
             'amount' => [
                 'currency_code' => $details->shipping_amount->currency_code,
                 'value' => $details->shipping_amount->value
