@@ -167,6 +167,14 @@ class PayPal extends Bundle
         return true;
     }
 
+    /**
+     * @param $id
+     * @return string
+     * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     */
     public function getSubscription($id){
         $client = HttpClient::create();
         $sub = new Subscription();
@@ -194,6 +202,33 @@ class PayPal extends Bundle
             'json' => ['reason' => 'admin cancel subscription']
         ]);
         return true;
+    }
+
+    /**
+     * @param $id
+     * @param $value
+     * @return bool
+     * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     */
+    public function refund($id, $value){
+        $headers = [
+            'content-type' => 'application/json',
+            'Authorisation' => self::getToken()
+        ];
+        $client = HttpClient::create();
+        $response = $client->request('POST', $this->_uri . '/v2/payments/captures/' . $id  . '/refund', [
+            'headers' => $headers,
+            'json' => [
+                'amount' => [
+                    'value' => $value,
+                    'currency_code' => 'CHF'
+                ]
+            ]
+        ]);
+        return $response->getContent();
     }
 
     /**
